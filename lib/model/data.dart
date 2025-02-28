@@ -5,18 +5,18 @@ class AppData {
   static List<Ride> rideList = [
     Ride(
         id: 1,
-        name: 'Vancouver-Victoria',
-        price: 240.00,
+        name: 'To Douglas College',
+        price: 10.00,
         isSelected: true,
         isliked: false,
-        image: 'assets/victoria.jpg',
+        image: 'assets/car_carpooling.jpg',
         event: "Max"),
     Ride(
         id: 2,
-        name: 'Vancouver-Whistler',
-        price: 220.00,
+        name: 'Party 1',
+        price: 8.00,
         isliked: false,
-        image: 'assets/whistler.jpg',
+        image: 'assets/event_scene.jpg',
         event: "jane"),
   ];
   static List<Ride> cartList = [

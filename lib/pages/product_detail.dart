@@ -117,7 +117,7 @@ class _ProductDetailPageState extends State<ProductDetailPage>
             fontSize: 160,
             color: LightColor.lightGrey,
           ),
-          Image.asset('assets/show_1.png')
+          Image.asset('assets/car_carpooling.jpg')
         ],
       ),
     );
@@ -200,7 +200,7 @@ class _ProductDetailPageState extends State<ProductDetailPage>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      TitleText(text: "NIKE AIR MAX 200", fontSize: 25),
+                      TitleText(text: "Car pool", fontSize: 25),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: <Widget>[
@@ -213,7 +213,7 @@ class _ProductDetailPageState extends State<ProductDetailPage>
                                 color: LightColor.red,
                               ),
                               TitleText(
-                                text: "240",
+                                text: "10",
                                 fontSize: 25,
                               ),
                             ],
@@ -236,14 +236,14 @@ class _ProductDetailPageState extends State<ProductDetailPage>
                     ],
                   ),
                 ),
-                SizedBox(
+                /*SizedBox(
                   height: 20,
                 ),
                 _availableSize(),
                 SizedBox(
                   height: 20,
                 ),
-                _availableColor(),
+                _availableColor(),*/
                 SizedBox(
                   height: 20,
                 ),
@@ -255,7 +255,7 @@ class _ProductDetailPageState extends State<ProductDetailPage>
       },
     );
   }
-
+/*
   Widget _availableSize() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -345,7 +345,7 @@ class _ProductDetailPageState extends State<ProductDetailPage>
           : CircleAvatar(radius: 7, backgroundColor: color),
     );
   }
-
+*/
   Widget _description() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

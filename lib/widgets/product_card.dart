@@ -78,7 +78,7 @@ class ProductCard extends StatelessWidget {
                   color: LightColor.orange, key: null,
                 ),
                 TitleText(
-                  text: ride.price.toString(),
+                  text: '\$${ride.price}',
                   fontSize: ride.isSelected ? 18 : 16, key: null,
                 ),
               ],
