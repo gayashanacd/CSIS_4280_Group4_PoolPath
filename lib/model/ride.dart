@@ -6,5 +6,7 @@ class Ride{
   double price ;
   bool isliked ;
   bool isSelected ;
-  Ride({required this.id,required this.name, required this.event, required this.price, required this.isliked,this.isSelected = false,required this.image});
+  String fromLocation;
+  String toLocation;
+  Ride({required this.id,required this.name, required this.event, required this.price, required this.isliked,this.isSelected = false,required this.image, required this.fromLocation, required this.toLocation});
 }

@@ -10,14 +10,18 @@ class AppData {
         isSelected: true,
         isliked: false,
         image: 'assets/car_carpooling.jpg',
-        event: "Max"),
+        event: "Max",
+        fromLocation: 'Sapperton',
+        toLocation: 'Douglas College, New Westminster'),
     Ride(
         id: 2,
         name: 'Party 1',
         price: 8.00,
         isliked: false,
         image: 'assets/event_scene.jpg',
-        event: "jane"),
+        event: "jane",
+        fromLocation: 'Sapperton',
+        toLocation: 'Douglas College, New Westminster'),
   ];
   static List<Ride> cartList = [
     Ride(
@@ -27,21 +31,27 @@ class AppData {
         isSelected: true,
         isliked: false,
         image: 'assets/small_tilt_shoe_1.png',
-        event: "Trending Now"),
+        event: "Trending Now",
+        fromLocation: 'Sapperton',
+        toLocation: 'Douglas College, New Westminster'),
     Ride(
         id: 2,
         name: 'Nike Air Max 97',
         price: 190.00,
         isliked: false,
         image: 'assets/small_tilt_shoe_2.png',
-        event: "Trending Now"),
+        event: "Trending Now",
+        fromLocation: 'Sapperton',
+        toLocation: 'Douglas College, New Westminster'),
     Ride(
         id: 1,
         name: 'Nike Air Max 92607',
         price: 220.00,
         isliked: false,
         image: 'assets/small_tilt_shoe_3.png',
-        event: "Trending Now"),
+        event: "Trending Now",
+        fromLocation: 'Sapperton',
+        toLocation: 'Douglas College, New Westminster'),
     Ride(
         id: 2,
         name: 'Nike Air Max 200',
@@ -49,7 +59,9 @@ class AppData {
         isSelected: true,
         isliked: false,
         image: 'assets/small_tilt_shoe_1.png',
-        event: "Trending Now"),
+        event: "Trending Now",
+        fromLocation: 'Sapperton',
+        toLocation: 'Douglas College, New Westminster'),
   ];
   static List<Event> eventList = [
     Event(

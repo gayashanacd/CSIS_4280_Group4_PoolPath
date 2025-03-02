@@ -351,11 +351,21 @@ class _ProductDetailPageState extends State<ProductDetailPage>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         TitleText(
-          text: "Available Size",
+          text: "Ride Details:",
           fontSize: 14,
         ),
         SizedBox(height: 20),
-        Text(AppData.description),
+        Text('From: Sapperton', style: TextStyle(fontWeight: FontWeight.bold),),
+        Text('To: Douglas College, New Westminster', style: TextStyle(fontWeight: FontWeight.bold)),
+        Text('Date: 02/03/2025 at 7:30 AM'),
+        Text('Seats Available: 3'),
+        Text('Fare: \$${5} per seat'),
+        const SizedBox(height: 8),
+        Center(child: ElevatedButton(
+          onPressed: () {},
+          child: const Text('Join Ride'),
+        ),),
+
       ],
     );
   }
