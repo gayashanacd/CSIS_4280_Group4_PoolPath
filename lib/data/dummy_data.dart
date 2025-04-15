@@ -6,61 +6,48 @@ import '../models/request.dart';
 
 class DummyData {
   // Users
-  static final List<UserModel> users = [
-    UserModel(
-      id: 'u1',
-      name: 'Alex',
-      profileImage: 'assets/images/alex.jpg',
-      email: 'alex@poolpath.com',
-      phone: '+1234567890',
-      rating: 4.8,
-      totalRides: 42,
-      preferences: {
-        'smoking': false,
-        'pets': true,
-        'music': 'Any',
-      },
+  static List<User> users = [
+    User(
+      id: 1,
+      username: 'alex@example.com',
+      password: 'password123',
+      fullName: 'Alex Smith',
+      phoneNumber: '+1234567890',
     ),
-    UserModel(
-      id: 'u2',
-      name: 'John',
-      profileImage: 'assets/images/john.jpg',
-      email: 'john@poolpath.com',
-      phone: '+1987654321',
-      rating: 4.5,
-      totalRides: 15,
+    User(
+      id: 2,
+      username: 'john@example.com',
+      password: 'password456',
+      fullName: 'John Doe',
+      phoneNumber: '+1987654321',
     ),
-    UserModel(
-      id: 'u3',
-      name: 'Sam',
-      profileImage: 'assets/images/sam.jpg',
-      email: 'sam@poolpath.com',
-      phone: '+1122334455',
-      rating: 4.9,
-      totalRides: 27,
+    User(
+      id: 3,
+      username: 'sam@example.com',
+      password: 'password789',
+      fullName: 'Sam Johnson',
+      phoneNumber: '+1122334455',
     ),
-    UserModel(
-      id: 'u4',
-      name: 'Andrew',
-      profileImage: 'assets/images/andrew.jpg',
-      email: 'andrew@poolpath.com',
-      phone: '+1555666777',
-      rating: 4.7,
-      totalRides: 31,
+    User(
+      id: 4,
+      username: 'andrew@example.com',
+      password: 'passwordabc',
+      fullName: 'Andrew Williams',
+      phoneNumber: '+1555666777',
     ),
-    UserModel(
-      id: 'u5',
-      name: 'Jim',
-      profileImage: 'assets/images/jim.jpg',
-      rating: 4.6,
-      totalRides: 19,
+    User(
+      id: 5,
+      username: 'jim@example.com',
+      password: 'passworddef',
+      fullName: 'Jim Brown',
+      phoneNumber: '+1444555666',
     ),
-    UserModel(
-      id: 'u6',
-      name: 'Ivan',
-      profileImage: 'assets/images/ivan.jpg',
-      rating: 4.4,
-      totalRides: 9,
+    User(
+      id: 6,
+      username: 'ivan@example.com',
+      password: 'passwordghi',
+      fullName: 'Ivan Davis',
+      phoneNumber: '+1777888999',
     ),
   ];
 

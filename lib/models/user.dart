@@ -1,21 +1,44 @@
-class UserModel {
-  final String id;
-  final String name;
-  final String? profileImage;
-  final String? email;
-  final String? phone;
-  final Map<String, dynamic>? preferences;
-  final double? rating;
-  final int? totalRides;
+import 'dart:convert';
+import 'package:flutter/material.dart';
 
-  UserModel({
+class User {
+  final int id;
+  final String username;
+  final String password;
+  final String fullName;
+  final String phoneNumber;
+
+  User({
     required this.id,
-    required this.name,
-    this.profileImage,
-    this.email,
-    this.phone,
-    this.preferences,
-    this.rating,
-    this.totalRides,
+    required this.username,
+    required this.password,
+    required this.fullName,
+    required this.phoneNumber,
   });
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      id: json['id'],
+      username: json['username'],
+      password: json['password'],
+      fullName: json['fullName'],
+      phoneNumber: json['phoneNumber'],
+    );
+  }
+
+  User copyWith({
+    int? id,
+    String? username,
+    String? password,
+    String? fullName,
+    String? phoneNumber,
+  }) {
+    return User(
+      id: id ?? this.id,
+      username: username ?? this.username,
+      password: password ?? this.password,
+      fullName: fullName ?? this.fullName,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+    );
+  }
 }

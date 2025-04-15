@@ -28,6 +28,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders.put("appAuthRedirectScheme", "com.wongi5.demo")
     }
 
     buildTypes {

@@ -1,5 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_appauth/flutter_appauth.dart';
+import 'package:group04_app/models/user.dart';
+import 'package:group04_app/providers/user_provider.dart';
+import 'package:provider/provider.dart';
 import '../../constants/theme.dart';
+import 'package:http/http.dart' as http;
+import 'dart:developer' as developer;
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -9,16 +17,131 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  String local_Ip="192.168.1.66";
+
+  bool _authenticated = false;
+  String _error = "";
+  String _teams = "";
+  final FlutterAppAuth _appAuth = const FlutterAppAuth();
+
+  final String _clientId = "poolpath-ui";
+  final String _clientSecret = "SuperSuperSecret";
+  final String _redirectUrl = "com.wongi5.demo:/oauthredirect";
+  final String _issuer = "http://192.168.1.66:9000";
+  final List<String> _scopes = <String>[
+    'openid',
+    'profile',
+    'poolpath:read',
+    'poolpath:admin'
+  ];
+
+  String? _accessToken;
+  String? _refreshToken;
+  String? _idToken;
+
+  bool _isBusy = false;
+  bool _isLoading = false;
+
+  final AuthorizationServiceConfiguration _serviceConfiguration =
+  const AuthorizationServiceConfiguration(
+      authorizationEndpoint: "http://192.168.1.66:9000/oauth2/authorize",
+      tokenEndpoint: "http://192.168.1.66:9000/oauth2/token",
+      endSessionEndpoint: "http://192.168.1.66:9000/connect/logout");
+
+  Future<void> _login() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+
+    final String email = _emailController.text.trim();
+    final String password = _passwordController.text;
+
+    try {
+      developer.log('Bearer $_accessToken');
+      final response = await http.post(
+        Uri.parse('http://$local_Ip:8081/api/login'),
+          headers: {
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $_accessToken',
+          },
+        body: jsonEncode({'username': email, 'password': password}),
+      );
+      developer.log('username' + email + 'password' + password);
+      setState(() => _isLoading = false);
+
+      if (response.statusCode == 200) {
+        Navigator.pushReplacementNamed(context, '/home');
+        return;
+        if (response.body != null && response.body.isNotEmpty) { //check for empty body
+          final Map<String, dynamic> responseData = jsonDecode(response.body);
+          final user = User.fromJson(responseData);
+          Provider.of<UserProvider>(context, listen: false).setUser(user);
+          Navigator.pushReplacementNamed(context, '/home');
+        } else {
+          //log('Login successful, but empty response body.', error: 'Empty response body');
+          _showErrorDialog('Login successful, but server returned empty data.');
+        }
+      } else {
+        print('Login failed. Status code: ${response.statusCode}, Body: ${response.body}');
+        if (response.body != null && response.body.isNotEmpty) { //check for empty body before decoding
+          try {
+            final Map<String, dynamic> responseData = jsonDecode(response.body);
+            final String message = responseData['message']?.toString().toLowerCase() ?? 'Login failed';
+
+            if (message.contains('user') && message.contains('not')) {
+              _showErrorDialog('User does not exist. Please check your email or sign up.');
+            } else if (message.contains('password') && message.contains('wrong')) {
+              _showErrorDialog('Incorrect password. Please try again.');
+            } else {
+              _showErrorDialog(responseData['message'] ?? 'Login failed. Please try again.');
+            }
+          } catch (e, stackTrace) {
+            //log('Error during login, during json decode, or message access: $e', error: e, stackTrace: stackTrace);
+            _showErrorDialog('Login failed. Please try again.');
+          }
+        } else {
+          //log('Login failed, but server returned empty data.', error: 'Empty response body');
+          _showErrorDialog('Login failed. Server returned empty data.');
+        }
+      }
+    } catch (e, stackTrace) {
+      setState(() => _isLoading = false);
+      //log('Error during login: $e', error: e, stackTrace: stackTrace);
+      _showErrorDialog('An unexpected error occurred: $e');
+    }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('Login Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            child: Text('OK'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  bool _isValidEmail(String email) {
+    return RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.all(24),
+          padding: EdgeInsets.all(24),
+          child: Form(
+            key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -97,10 +220,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 SizedBox(height: 32),
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async  {
                     // In a real app, would validate and authenticate
-                    Navigator.pushReplacementNamed(context, '/home');
-                  },
+                    await _signInWithAutoCodeExchange();
+              await _login();
+          //Navigator.pushReplacementNamed(context, '/home');
+        }, //_isLoading ? null : _login,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryDark,
                     shape: RoundedRectangleBorder(
@@ -108,7 +233,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     padding: EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: Text(
+                  child: _isLoading
+                      ? CircularProgressIndicator(color: Colors.white)
+                      : Text(
                     'Sign in',
                     style: TextStyle(
                       fontSize: 18,
@@ -116,6 +243,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
+                Text("$_error", style: TextStyle(fontSize: 20)),
                 SizedBox(height: 24),
                 Row(
                   children: [
@@ -150,6 +278,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       icon: Image.asset('assets/images/facebook_logo.png',
                           width: 30, height: 30),
                       onPressed: () {
+
                         // Facebook sign in
                       },
                     ),
@@ -161,5 +290,56 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+  void _handleError(Object e) {
+    setState(() {
+      _error = "Error: $e";
+    });
+  }
+
+  void _processAuthTokenResponse(AuthorizationTokenResponse response) {
+    setState(() {
+      _authenticated = true;
+      _accessToken = response.accessToken;
+      _refreshToken = response.refreshToken;
+      _idToken = response.idToken;
+    });
+  }
+
+  void _setBusyState() {
+    setState(() {
+      _error = "";
+      _isBusy = true;
+    });
+  }
+
+  void _clearBusyState() {
+    setState(() {
+      _isBusy = false;
+    });
+  }
+
+  Future<void> _signInWithAutoCodeExchange(
+      {ExternalUserAgent externalUserAgent =
+          ExternalUserAgent.asWebAuthenticationSession}) async {
+    try {
+      _setBusyState();
+
+      final AuthorizationTokenResponse result =
+      await _appAuth.authorizeAndExchangeCode(AuthorizationTokenRequest(
+          _clientId, _redirectUrl,
+          serviceConfiguration: _serviceConfiguration,
+          scopes: _scopes,
+          externalUserAgent: externalUserAgent,
+          allowInsecureConnections: true,
+          issuer: _issuer,
+          clientSecret: _clientSecret));
+
+      _processAuthTokenResponse(result);
+    } catch (e) {
+      _handleError(e);
+    } finally {
+      _clearBusyState();
+    }
   }
 }
