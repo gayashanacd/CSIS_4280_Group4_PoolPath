@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../../constants/theme.dart';
 import 'package:http/http.dart' as http;
 import 'dart:developer' as developer;
+import '../../util/util.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -20,7 +21,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  String local_Ip="192.168.1.66";
+  //String local_Ip="192.168.1.66";
 
   bool _authenticated = false;
   String _error = "";
@@ -30,7 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final String _clientId = "poolpath-ui";
   final String _clientSecret = "SuperSuperSecret";
   final String _redirectUrl = "com.wongi5.demo:/oauthredirect";
-  final String _issuer = "http://192.168.1.66:9000";
+  final String _issuer = "http://$local_Ip:9000";
   final List<String> _scopes = <String>[
     'openid',
     'profile',
@@ -47,9 +48,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final AuthorizationServiceConfiguration _serviceConfiguration =
   const AuthorizationServiceConfiguration(
-      authorizationEndpoint: "http://192.168.1.66:9000/oauth2/authorize",
-      tokenEndpoint: "http://192.168.1.66:9000/oauth2/token",
-      endSessionEndpoint: "http://192.168.1.66:9000/connect/logout");
+      authorizationEndpoint: "http://$local_Ip:9000/oauth2/authorize",
+      tokenEndpoint: "http://$local_Ip:9000/oauth2/token",
+      endSessionEndpoint: "http://$local_Ip:9000/connect/logout");
 
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
