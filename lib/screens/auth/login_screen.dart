@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../../constants/theme.dart';
 import 'package:http/http.dart' as http;
 import 'dart:developer' as developer;
+import '../../providers/token_provider.dart';
 import '../../util/util.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -61,12 +62,13 @@ class _LoginScreenState extends State<LoginScreen> {
     final String password = _passwordController.text;
 
     try {
-      developer.log('Bearer $_accessToken');
+      //developer.log('Bearer $_accessToken');
+      final _accessTokenTemp = Provider.of<TokenProvider>(context, listen: false).accessToken;
       final response = await http.post(
         Uri.parse('http://$local_Ip:8081/api/login'),
           headers: {
             'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $_accessToken',
+            'Authorization': 'Bearer $_accessTokenTemp',
           },
         body: jsonEncode({'username': email, 'password': password}),
       );
@@ -74,8 +76,8 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() => _isLoading = false);
 
       if (response.statusCode == 200) {
-        Navigator.pushReplacementNamed(context, '/home');
-        return;
+        //Navigator.pushReplacementNamed(context, '/home');
+        //return;
         if (response.body != null && response.body.isNotEmpty) { //check for empty body
           final Map<String, dynamic> responseData = jsonDecode(response.body);
           final user = User.fromJson(responseData);
@@ -110,7 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } catch (e, stackTrace) {
       setState(() => _isLoading = false);
-      //log('Error during login: $e', error: e, stackTrace: stackTrace);
+      developer.log('Error during login: $e', error: e, stackTrace: stackTrace);
       _showErrorDialog('An unexpected error occurred: $e');
     }
   }
@@ -305,6 +307,14 @@ class _LoginScreenState extends State<LoginScreen> {
       _refreshToken = response.refreshToken;
       _idToken = response.idToken;
     });
+
+    // Share tokens globally using Provider
+    final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
+    tokenProvider.setTokens(
+      accessToken: response.accessToken ?? '',
+      refreshToken: response.refreshToken,
+      idToken: response.idToken,
+    );
   }
 
   void _setBusyState() {

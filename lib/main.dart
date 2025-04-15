@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:group04_app/providers/token_provider.dart';
+import 'package:group04_app/providers/user_provider.dart';
+import 'package:provider/provider.dart';
 import 'constants/theme.dart';
 import 'screens/home_screen.dart';
 import 'screens/ride_details_screen.dart';
@@ -12,7 +15,15 @@ import 'screens/filter_rides_screen.dart';
 import 'screens/identity_verification_screen.dart';
 
 void main() {
-  runApp(const PoolPathApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => TokenProvider()),
+      ],
+      child: PoolPathApp(),
+    ),
+  );
 }
 
 class PoolPathApp extends StatelessWidget {
