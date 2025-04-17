@@ -51,68 +51,88 @@ class DummyData {
     ),
   ];
 
-  // Rides
-  static final List<RideModel> rides = [
-    RideModel(
-      id: 'r1',
-      driverId: 'u1',
-      driverName: 'Alex',
-      from: 'Vancouver',
-      to: 'Victoria',
-      date: DateTime(2025, 1, 31),
-      time: TimeOfDay(hour: 8, minute: 30),
-      availableSeats: 2,
-      price: 250,
-      imageUrl: 'assets/images/victoria.jpg',
-      description: 'Scenic ride from Vancouver to Victoria, including a ferry trip across the stunning Strait of Georgia. Comfortable and convenient carpool option—reserve your seat now!',
+
+
+  static final List<Ride> rides = [
+    Ride(
+      id: 1, // Replace with appropriate IDs
+      userId: 1, // Replace with appropriate user IDs (driverId)
+      origin: 'Vancouver', // from
+      destination: 'Victoria', // to
+      originAddress: 'Vancouver', // Placeholder - you might need a different value
+      destinationAddress: 'Victoria', // Placeholder
+      datetime: DateTime(2025, 1, 31, 8, 30).toIso8601String(), // date and time combined
+      seatsAvailable: 2,
+      seatsCapacity: 2,
+      price: 250.0,
+      phoneNumber: '1234', // Placeholder
+      imageName: 'victoria.jpg', // imageUrl (without 'assets/images/')
+      full: false,
+      createdDateTime: DateTime.now().toIso8601String(), // Placeholder
     ),
-    RideModel(
-      id: 'r2',
-      driverId: 'u2',
-      driverName: 'John',
-      from: 'Vancouver',
-      to: 'Victoria',
-      date: DateTime(2025, 1, 31),
-      time: TimeOfDay(hour: 8, minute: 30),
-      availableSeats: 3,
-      price: 250,
-      imageUrl: 'assets/images/victoria.jpg',
+    Ride(
+      id: 2,
+      userId: 2,
+      origin: 'Vancouver',
+      destination: 'Victoria',
+      originAddress: 'Vancouver',
+      destinationAddress: 'Victoria',
+      datetime: DateTime(2025, 1, 31, 8, 30).toIso8601String(),
+      seatsAvailable: 3,
+      seatsCapacity: 3,
+      price: 250.0,
+      phoneNumber: '1234',
+      imageName: 'victoria.jpg',
+      full: false,
+      createdDateTime: DateTime.now().toIso8601String(),
     ),
-    RideModel(
-      id: 'r3',
-      driverId: 'u3',
-      driverName: 'Sam',
-      from: 'Vancouver',
-      to: 'Victoria',
-      date: DateTime(2025, 1, 31),
-      time: TimeOfDay(hour: 8, minute: 30),
-      availableSeats: 4,
-      price: 250,
-      imageUrl: 'assets/images/victoria.jpg',
+    Ride(
+      id: 3,
+      userId: 3,
+      origin: 'Vancouver',
+      destination: 'Victoria',
+      originAddress: 'Vancouver',
+      destinationAddress: 'Victoria',
+      datetime: DateTime(2025, 1, 31, 8, 30).toIso8601String(),
+      seatsAvailable: 4,
+      seatsCapacity: 4,
+      price: 250.0,
+      phoneNumber: '1234',
+      imageName: 'victoria.jpg',
+      full: false,
+      createdDateTime: DateTime.now().toIso8601String(),
     ),
-    RideModel(
-      id: 'r4',
-      driverId: 'u4',
-      driverName: 'Andrew',
-      from: 'Vancouver',
-      to: 'Victoria',
-      date: DateTime(2025, 1, 31),
-      time: TimeOfDay(hour: 8, minute: 30),
-      availableSeats: 2,
-      price: 250,
-      imageUrl: 'assets/images/victoria.jpg',
+    Ride(
+      id: 4,
+      userId: 4,
+      origin: 'Vancouver',
+      destination: 'Victoria',
+      originAddress: 'Vancouver',
+      destinationAddress: 'Victoria',
+      datetime: DateTime(2025, 1, 31, 8, 30).toIso8601String(),
+      seatsAvailable: 2,
+      seatsCapacity: 2,
+      price: 250.0,
+      phoneNumber: '1234',
+      imageName: 'victoria.jpg',
+      full: false,
+      createdDateTime: DateTime.now().toIso8601String(),
     ),
-    RideModel(
-      id: 'r5',
-      driverId: 'u1',
-      driverName: 'Alex',
-      from: 'Vancouver',
-      to: 'Whistler',
-      date: DateTime(2025, 1, 18),
-      time: TimeOfDay(hour: 20, minute: 0),
-      availableSeats: 2,
-      price: 500,
-      imageUrl: 'assets/images/whistler.jpg',
+    Ride(
+      id: 5,
+      userId: 1,
+      origin: 'Vancouver',
+      destination: 'Whistler',
+      originAddress: 'Vancouver',
+      destinationAddress: 'Whistler',
+      datetime: DateTime(2025, 1, 18, 20, 0).toIso8601String(),
+      seatsAvailable: 2,
+      seatsCapacity: 2,
+      price: 500.0,
+      phoneNumber: '1234',
+      imageName: 'whistler.jpg',
+      full: false,
+      createdDateTime: DateTime.now().toIso8601String(),
     ),
   ];
 
