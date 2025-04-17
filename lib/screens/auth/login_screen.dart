@@ -22,7 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  //String local_Ip="192.168.1.66";
+  //String local_Ip="192.168.1.166";
 
   bool _authenticated = false;
   String _error = "";
@@ -150,7 +150,6 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 SizedBox(height: 60),
                 Container(
-                  width: double.infinity,
                   height: 150,
                   decoration: BoxDecoration(
                     color: AppColors.primaryDark,
@@ -173,62 +172,66 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 SizedBox(height: 40),
-                Text(
-                  'Email',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+
+                // Email
+                Text('Email', style: TextStyle(fontWeight: FontWeight.bold)),
                 SizedBox(height: 8),
-                TextField(
+                TextFormField(
                   controller: _emailController,
+                  validator: (value) => value == null || !_isValidEmail(value)
+                      ? 'Enter a valid email'
+                      : null,
                   decoration: InputDecoration(
+                    hintText: 'Enter your email',
                     filled: true,
                     fillColor: AppColors.white,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30),
                       borderSide: BorderSide.none,
                     ),
-                    hintText: 'Email',
                   ),
                   keyboardType: TextInputType.emailAddress,
                 ),
+
                 SizedBox(height: 16),
-                Text(
-                  'Password',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+
+                // Password
+                Text('Password', style: TextStyle(fontWeight: FontWeight.bold)),
                 SizedBox(height: 8),
-                TextField(
+                TextFormField(
                   controller: _passwordController,
+                  obscureText: true,
+                  validator: (value) => value == null || value.isEmpty
+                      ? 'Enter your password'
+                      : null,
                   decoration: InputDecoration(
+                    hintText: 'Enter your password',
                     filled: true,
                     fillColor: AppColors.white,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30),
                       borderSide: BorderSide.none,
                     ),
-                    hintText: 'Password',
-                    suffixText: 'Forgot Password ?',
-                    suffixStyle: TextStyle(
-                      color: AppColors.primaryDark,
-                      fontWeight: FontWeight.bold,
+                    suffixIcon: TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/forgot-password');
+                      },
+                      child: Text(
+                        'Forgot?',
+                        style: TextStyle(
+                          color: AppColors.primaryDark,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
-                  obscureText: true,
                 ),
+
                 SizedBox(height: 32),
+
+                // Sign In Button
                 ElevatedButton(
-                  onPressed: () async  {
-                    // In a real app, would validate and authenticate
-                    await _signInWithAutoCodeExchange();
-              await _login();
-          //Navigator.pushReplacementNamed(context, '/home');
-        }, //_isLoading ? null : _login,
+                  onPressed: _isLoading ? null : _login,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryDark,
                     shape: RoundedRectangleBorder(
@@ -246,26 +249,37 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
-                Text("$_error", style: TextStyle(fontSize: 20)),
-                SizedBox(height: 24),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Divider(color: Colors.grey),
+
+                SizedBox(height: 16),
+
+                // Sign Up Link
+                TextButton(
+                  onPressed: () => Navigator.pushNamed(context, '/signup'),
+                  child: Text(
+                    'Don\'t have an account? Sign up',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: AppColors.primaryDark,
+                      fontWeight: FontWeight.bold,
                     ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        'or',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    ),
-                    Expanded(
-                      child: Divider(color: Colors.grey),
-                    ),
-                  ],
+                  ),
                 ),
+
+                SizedBox(height: 16),
+
+                // Divider
+                Row(children: [
+                  Expanded(child: Divider(color: Colors.grey)),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: Text('or', style: TextStyle(color: Colors.grey)),
+                  ),
+                  Expanded(child: Divider(color: Colors.grey)),
+                ]),
+
                 SizedBox(height: 24),
+
+                // Social Icons
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -273,7 +287,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       icon: Image.asset('assets/images/google_logo.png',
                           width: 30, height: 30),
                       onPressed: () {
-                        // Google sign in
+                        // Google login
                       },
                     ),
                     SizedBox(width: 24),
@@ -281,8 +295,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       icon: Image.asset('assets/images/facebook_logo.png',
                           width: 30, height: 30),
                       onPressed: () {
-
-                        // Facebook sign in
+                        // Facebook login
                       },
                     ),
                   ],
@@ -294,6 +307,7 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+
   void _handleError(Object e) {
     setState(() {
       _error = "Error: $e";

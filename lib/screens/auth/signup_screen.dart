@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../../constants/theme.dart';
+import '../../util/util.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({Key? key}) : super(key: key);
@@ -15,9 +18,49 @@ class _SignupScreenState extends State<SignupScreen> {
   final _passwordController = TextEditingController();
   final _phoneController = TextEditingController();
 
+  Future<void> _signup() async {
+    final String firstName = _firstNameController.text;
+    final String lastName = _lastNameController.text;
+    final String email = _emailController.text;
+    final String password = _passwordController.text;
+    final String phone = _phoneController.text;
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://$local_Ip:8081/api/users'), // Correct URL
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'username': email, // Use email as username
+          'password': password,
+          'fullName': '$firstName $lastName',
+          'phoneNumber': phone,
+        }),
+      );
+
+      if (response.statusCode == 201) { // 201 Created for successful creation
+        print('User created successfully!');
+        Navigator.pop(context); // Navigate back
+      } else {
+        print('Failed to create user. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        // Handle error (e.g., show an error message)
+      }
+    } catch (e) {
+      print('Error during signup: $e');
+      // Handle network or other errors
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: IconThemeData(color: AppColors.primaryDark),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -25,9 +68,10 @@ class _SignupScreenState extends State<SignupScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                SizedBox(height: 40),
+                SizedBox(height: 20),
                 Text(
                   'Sign Up',
+                  textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
@@ -157,10 +201,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 ),
                 SizedBox(height: 32),
                 ElevatedButton(
-                  onPressed: () {
-                    // In a real app, would validate and create account
-                    Navigator.pushReplacementNamed(context, '/home');
-                  },
+                  onPressed: _signup, // Call the _signup function
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryDark,
                     shape: RoundedRectangleBorder(
