@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 import '../constants/theme.dart';
 import '../widgets/bottom_nav_bar.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import '../../util/util.dart'; // Assuming you have this for IP
+import 'package:provider/provider.dart'; // Import the provider package
+import '../../providers/user_provider.dart'; // Import your UserProvider
 
 class PostRideScreen extends StatefulWidget {
   const PostRideScreen({Key? key}) : super(key: key);
@@ -11,28 +18,127 @@ class PostRideScreen extends StatefulWidget {
 
 class _PostRideScreenState extends State<PostRideScreen> {
   int _currentIndex = 1; // Location tab
+  File? _image;
+  final _picker = ImagePicker();
+  final originController = TextEditingController();
+  final destinationController = TextEditingController();
+  final dateController = TextEditingController();
+  final timeController = TextEditingController();
+  final priceController = TextEditingController();
+  final seatsController = TextEditingController();
+  final originAddressController = TextEditingController();
+  final destinationAddressController = TextEditingController();
+
+  Future<void> getImage() async {
+    try {
+      final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+      setState(() {
+        if (pickedFile != null) {
+          _image = File(pickedFile.path);
+        } else {
+          print('No image selected.');
+        }
+      });
+    } catch (e) {
+      print('Error picking image: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to pick image.')),
+      );
+    }
+  }
+
+  Future<void> _postRide() async {
+    if (_image == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select an image.')),
+      );
+      return;
+    }
+
+    try {
+      final uri = Uri.parse("http://$local_Ip:8081/api/rides/image");
+      var request = http.MultipartRequest('POST', uri);
+      request.fields['origin'] = originController.text;
+      request.fields['destination'] = destinationController.text;
+      request.fields['date'] = dateController.text;
+      request.fields['time'] = timeController.text;
+      request.fields['price'] = priceController.text;
+      request.fields['seats'] = seatsController.text;
+
+      final userProvider = Provider.of<UserProvider>(context, listen: false); // Get UserProvider
+      final user = userProvider.user; // Get the user object
+
+      request.fields['userId'] = user!.id.toString(); // Use the user's ID (assuming user.id is the ID)
+
+      request.fields['originAddress'] = originAddressController.text;
+      request.fields['destinationAddress'] =
+          destinationAddressController.text;
+
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'image',
+          _image!.path,
+          contentType: MediaType('image', 'jpeg'),
+        ),
+      );
+
+      print('Sending request with:');
+      print('Origin: ${request.fields['origin']}');
+      print('Destination: ${request.fields['destination']}');
+      print('Date: ${request.fields['date']}');
+      print('Time: ${request.fields['time']}');
+      print('Price: ${request.fields['price']}');
+      print('Seats: ${request.fields['seats']}');
+      print('UserId: ${request.fields['userId']}');
+      print('Origin Address: ${request.fields['originAddress']}');
+      print('Destination Address: ${request.fields['destinationAddress']}');
+
+      var response = await request.send();
+
+      if (response.statusCode == 201) {
+        print('Ride posted successfully!');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Ride posted successfully!')),
+        );
+        Navigator.pop(context);
+      } else {
+        print('Failed to post ride: ${response.statusCode}');
+        final responseBody = await response.stream.bytesToString();
+        print('Response body: $responseBody');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to post ride.')),
+        );
+      }
+    } catch (e) {
+      print('Error during ride posting: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('An error occurred while posting the ride.')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Post a Ride'),
+        title: const Text('Post a Ride'),
         backgroundColor: AppColors.primaryDark,
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'From',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             TextField(
+              controller: originController,
               decoration: InputDecoration(
                 filled: true,
                 fillColor: AppColors.white,
@@ -43,16 +149,38 @@ class _PostRideScreenState extends State<PostRideScreen> {
                 hintText: 'Starting location',
               ),
             ),
-            SizedBox(height: 16),
-            Text(
+            const SizedBox(height: 16),
+            const Text(
+              'Origin Address',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: originAddressController,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: AppColors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide.none,
+                ),
+                hintText: 'Origin address',
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
               'To',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             TextField(
+              controller: destinationController,
               decoration: InputDecoration(
                 filled: true,
                 fillColor: AppColors.white,
@@ -63,15 +191,36 @@ class _PostRideScreenState extends State<PostRideScreen> {
                 hintText: 'Destination',
               ),
             ),
-            SizedBox(height: 16),
-            Text(
+            const SizedBox(height: 16),
+            const Text(
+              'Destination Address',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: destinationAddressController,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: AppColors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide.none,
+                ),
+                hintText: 'Destination address',
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
               'Image',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Container(
               width: double.infinity,
               height: 100,
@@ -80,28 +229,31 @@ class _PostRideScreenState extends State<PostRideScreen> {
                 borderRadius: BorderRadius.circular(15),
               ),
               child: Center(
-                child: TextButton(
-                  onPressed: () {},
-                  child: Text(
+                child: _image == null
+                    ? TextButton(
+                  onPressed: getImage,
+                  child: const Text(
                     'Browse',
                     style: TextStyle(
                       color: AppColors.primaryDark,
                       fontSize: 16,
                     ),
                   ),
-                ),
+                )
+                    : Image.file(_image!),
               ),
             ),
-            SizedBox(height: 16),
-            Text(
+            const SizedBox(height: 16),
+            const Text(
               'Date',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             TextField(
+              controller: dateController,
               decoration: InputDecoration(
                 filled: true,
                 fillColor: AppColors.white,
@@ -110,7 +262,7 @@ class _PostRideScreenState extends State<PostRideScreen> {
                   borderSide: BorderSide.none,
                 ),
                 hintText: 'Date',
-                suffixIcon: Icon(Icons.calendar_today),
+                suffixIcon: const Icon(Icons.calendar_today),
               ),
               readOnly: true,
               onTap: () async {
@@ -120,19 +272,24 @@ class _PostRideScreenState extends State<PostRideScreen> {
                   firstDate: DateTime.now(),
                   lastDate: DateTime(2101),
                 );
-                // Handle selected date
+                if (pickedDate != null) {
+                  String month = pickedDate.month.toString().padLeft(2, '0');
+                  String day = pickedDate.day.toString().padLeft(2, '0');
+                  dateController.text = "${pickedDate.year}-$month-$day";
+                }
               },
             ),
-            SizedBox(height: 16),
-            Text(
+            const SizedBox(height: 16),
+            const Text(
               'Time',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             TextField(
+              controller: timeController,
               decoration: InputDecoration(
                 filled: true,
                 fillColor: AppColors.white,
@@ -141,7 +298,7 @@ class _PostRideScreenState extends State<PostRideScreen> {
                   borderSide: BorderSide.none,
                 ),
                 hintText: 'Time',
-                suffixIcon: Icon(Icons.access_time),
+                suffixIcon: const Icon(Icons.access_time),
               ),
               readOnly: true,
               onTap: () async {
@@ -149,19 +306,24 @@ class _PostRideScreenState extends State<PostRideScreen> {
                   context: context,
                   initialTime: TimeOfDay.now(),
                 );
-                // Handle selected time
+                if (pickedTime != null) {
+                  String hour = pickedTime.hour.toString().padLeft(2, '0');
+                  String minute = pickedTime.minute.toString().padLeft(2, '0');
+                  timeController.text = "$hour:$minute";
+                }
               },
             ),
-            SizedBox(height: 16),
-            Text(
+            const SizedBox(height: 16),
+            const Text(
               'Price',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             TextField(
+              controller: priceController,
               decoration: InputDecoration(
                 filled: true,
                 fillColor: AppColors.white,
@@ -170,20 +332,21 @@ class _PostRideScreenState extends State<PostRideScreen> {
                   borderSide: BorderSide.none,
                 ),
                 hintText: 'Price per seat',
-                prefixIcon: Icon(Icons.attach_money),
+                prefixIcon: const Icon(Icons.attach_money),
               ),
               keyboardType: TextInputType.number,
             ),
-            SizedBox(height: 16),
-            Text(
+            const SizedBox(height: 16),
+            const Text(
               'Available Seats',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             TextField(
+              controller: seatsController,
               decoration: InputDecoration(
                 filled: true,
                 fillColor: AppColors.white,
@@ -192,24 +355,21 @@ class _PostRideScreenState extends State<PostRideScreen> {
                   borderSide: BorderSide.none,
                 ),
                 hintText: 'Number of seats',
-                prefixIcon: Icon(Icons.airline_seat_recline_normal),
+                prefixIcon: const Icon(Icons.airline_seat_recline_normal),
               ),
               keyboardType: TextInputType.number,
             ),
-            SizedBox(height: 32),
+            const SizedBox(height: 32),
             ElevatedButton(
-              onPressed: () {
-                // Post ride logic
-                Navigator.pop(context);
-              },
+              onPressed: _postRide,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryDark,
-                minimumSize: Size(double.infinity, 50),
+                minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(25),
                 ),
               ),
-              child: Text('Post Ride'),
+              child: const Text('Post Ride'),
             ),
           ],
         ),
