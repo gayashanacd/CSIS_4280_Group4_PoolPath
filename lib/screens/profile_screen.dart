@@ -32,6 +32,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       print('Request Body: $body');
       print('Is Password Change: $isPasswordChange'); // Debug for password
 
+
       final response = await http.put(
         url,
         headers: {'Content-Type': 'application/json'},
