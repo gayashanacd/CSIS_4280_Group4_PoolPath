@@ -5,9 +5,9 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
-import '../../util/util.dart'; // Assuming you have this for IP
-import 'package:provider/provider.dart'; // Import the provider package
-import '../../providers/user_provider.dart'; // Import your UserProvider
+import '../../util/util.dart';
+import 'package:provider/provider.dart';
+import '../../providers/user_provider.dart';
 
 class PostRideScreen extends StatefulWidget {
   const PostRideScreen({Key? key}) : super(key: key);
@@ -17,7 +17,7 @@ class PostRideScreen extends StatefulWidget {
 }
 
 class _PostRideScreenState extends State<PostRideScreen> {
-  int _currentIndex = 1; // Location tab
+  int _currentIndex = 1;
   File? _image;
   final _picker = ImagePicker();
   final originController = TextEditingController();
@@ -28,6 +28,13 @@ class _PostRideScreenState extends State<PostRideScreen> {
   final seatsController = TextEditingController();
   final originAddressController = TextEditingController();
   final destinationAddressController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    dateController.text = ''; // Initialize as empty
+    timeController.text = ''; // Initialize as empty
+  }
 
   Future<void> getImage() async {
     try {
@@ -60,19 +67,18 @@ class _PostRideScreenState extends State<PostRideScreen> {
       var request = http.MultipartRequest('POST', uri);
       request.fields['origin'] = originController.text;
       request.fields['destination'] = destinationController.text;
-      request.fields['date'] = dateController.text;
-      request.fields['time'] = timeController.text;
+      request.fields['date'] = dateController.text; // Use the controller's text
+      request.fields['time'] = timeController.text; // Use the controller's text
       request.fields['price'] = priceController.text;
       request.fields['seats'] = seatsController.text;
 
-      final userProvider = Provider.of<UserProvider>(context, listen: false); // Get UserProvider
-      final user = userProvider.user; // Get the user object
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      final user = userProvider.user;
 
-      request.fields['userId'] = user!.id.toString(); // Use the user's ID (assuming user.id is the ID)
+      request.fields['userId'] = user!.id.toString();
 
       request.fields['originAddress'] = originAddressController.text;
-      request.fields['destinationAddress'] =
-          destinationAddressController.text;
+      request.fields['destinationAddress'] = destinationAddressController.text;
 
       request.files.add(
         await http.MultipartFile.fromPath(

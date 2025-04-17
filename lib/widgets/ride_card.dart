@@ -1,11 +1,11 @@
 // lib/widgets/ride_card.dart
 import 'package:flutter/material.dart';
 import '../constants/theme.dart';
-import '../models/ride.dart';
+import '../models/ride.dart'; // Use the Ride class we defined
 import 'package:intl/intl.dart';
 
 class RideCard extends StatelessWidget {
-  final RideModel ride;
+  final Ride ride; // Use Ride, not RideModel
   final Function()? onTap;
 
   const RideCard({
@@ -29,12 +29,32 @@ class RideCard extends StatelessWidget {
                 topLeft: Radius.circular(15),
                 topRight: Radius.circular(15),
               ),
-              child: ride.imageUrl != null
-                  ? Image.asset(
-                ride.imageUrl!,
+              child: ride.imageName.isNotEmpty // Check if imageName is not empty
+                  ? Image.network( // Use Image.network
+                'YOUR_IMAGE_BASE_URL/${ride.imageName}', // Construct the full URL
                 height: 100,
                 width: double.infinity,
                 fit: BoxFit.cover,
+                errorBuilder: (context, object, stackTrace) { // Handle image loading errors
+                  return Container(
+                    height: 100,
+                    width: double.infinity,
+                    color: Colors.grey[300],
+                    child: Icon(Icons.image_not_supported, size: 50, color: Colors.grey),
+                  );
+                },
+                loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                  if (loadingProgress == null) {
+                    return child;
+                  }
+                  return Center(
+                    child: CircularProgressIndicator(
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                          : null,
+                    ),
+                  );
+                },
               )
                   : Container(
                 height: 100,
@@ -44,38 +64,38 @@ class RideCard extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: EdgeInsets.all(12),
+              padding: const EdgeInsets.all(12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${ride.from}-${ride.to}',
-                    style: TextStyle(
+                    '${ride.origin}-${ride.destination}', // Use origin and destination
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: AppColors.white,
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildInfoItem(Icons.person, ride.driverName),
-                      _buildInfoItem(Icons.airline_seat_recline_normal, '${ride.availableSeats}'),
-                      _buildInfoItem(Icons.attach_money, '${ride.price.toInt()}'),
+                      _buildInfoItem(Icons.person, 'Driver'), // Replace with actual driver info
+                      _buildInfoItem(Icons.airline_seat_recline_normal, '${ride.seatsAvailable}'), // Use seatsAvailable
+                      _buildInfoItem(Icons.attach_money, '${ride.price.toInt()}'), // Use price
                     ],
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       _buildInfoItem(
                         Icons.calendar_today,
-                        DateFormat('MMM dd yyyy').format(ride.date),
+                        DateFormat('MMM dd, yyyy').format(DateTime.parse(ride.datetime)), // Parse and format datetime
                       ),
                       _buildInfoItem(
                         Icons.access_time,
-                        '${ride.time.hour}:${ride.time.minute.toString().padLeft(2, '0')}',
+                        DateFormat('HH:mm').format(DateTime.parse(ride.datetime)), // Parse and format datetime
                       ),
                     ],
                   ),
@@ -92,10 +112,10 @@ class RideCard extends StatelessWidget {
     return Row(
       children: [
         Icon(icon, color: AppColors.white, size: 18),
-        SizedBox(width: 4),
+        const SizedBox(width: 4),
         Text(
           text,
-          style: TextStyle(
+          style: const TextStyle(
             color: AppColors.white,
             fontWeight: FontWeight.w500,
           ),

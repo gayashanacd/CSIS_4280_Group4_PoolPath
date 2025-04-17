@@ -1,9 +1,9 @@
 // lib/screens/ride_details_screen.dart
 import 'package:flutter/material.dart';
-import '../constants/theme.dart';
-import '../models/ride.dart';
-import '../widgets/bottom_nav_bar.dart';
 import 'package:intl/intl.dart';
+import '../constants/theme.dart';
+import '../models/ride.dart'; // Use Ride, not RideModel
+import '../widgets/bottom_nav_bar.dart';
 
 class RideDetailsScreen extends StatefulWidget {
   const RideDetailsScreen({Key? key}) : super(key: key);
@@ -17,7 +17,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final ride = ModalRoute.of(context)!.settings.arguments as RideModel;
+    final ride = ModalRoute.of(context)!.settings.arguments as Ride; // Use Ride
 
     return Scaffold(
       body: SafeArea(
@@ -29,8 +29,31 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                 Container(
                   height: 250,
                   width: double.infinity,
-                  child: Image.asset(
-                    ride.imageUrl ?? 'assets/images/placeholder.jpg',
+                  child: ride.imageName.isNotEmpty // Check if imageName is not empty
+                      ? Image.network(
+                    'YOUR_IMAGE_BASE_URL/${ride.imageName}', // Construct the full URL
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, object, stackTrace) {
+                      return Image.asset(
+                        'assets/images/placeholder.jpg', // Placeholder in case of error
+                        fit: BoxFit.cover,
+                      );
+                    },
+                    loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                      if (loadingProgress == null) {
+                        return child;
+                      }
+                      return Center(
+                        child: CircularProgressIndicator(
+                          value: loadingProgress.expectedTotalBytes != null
+                              ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                              : null,
+                        ),
+                      );
+                    },
+                  )
+                      : Image.asset(
+                    'assets/images/placeholder.jpg', // Placeholder if no imageName
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -40,12 +63,12 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                   child: GestureDetector(
                     onTap: () => Navigator.pop(context),
                     child: Container(
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
+                      padding: const EdgeInsets.all(8),
+                      decoration: const BoxDecoration(
                         color: AppColors.primaryDark,
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(Icons.arrow_back, color: AppColors.white),
+                      child: const Icon(Icons.arrow_back, color: AppColors.white),
                     ),
                   ),
                 ),
@@ -53,33 +76,33 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                   top: 16,
                   right: 16,
                   child: Container(
-                    padding: EdgeInsets.all(8),
-                    decoration: BoxDecoration(
+                    padding: const EdgeInsets.all(8),
+                    decoration: const BoxDecoration(
                       color: AppColors.primaryDark,
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(Icons.search, color: AppColors.white),
+                    child: const Icon(Icons.search, color: AppColors.white),
                   ),
                 ),
               ],
             ),
             Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${ride.from}-${ride.to}',
+                    '${ride.origin}-${ride.destination}', // Use origin and destination
                     style: Theme.of(context).textTheme.displayMedium,
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Text(
-                    ride.description ?? 'No description provided.',
+                    'No description provided.', // Replace with actual description if available
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
                   Container(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: AppColors.primaryMedium,
                       borderRadius: BorderRadius.circular(10),
@@ -87,59 +110,63 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _buildInfoItem(Icons.calendar_today,
-                            DateFormat('MMM dd yyyy').format(ride.date)),
-                        _buildInfoItem(Icons.access_time,
-                            '${ride.time.hour}:${ride.time.minute.toString().padLeft(2, '0')}'),
+                        _buildInfoItem(
+                          Icons.calendar_today,
+                          DateFormat('MMM dd, yyyy').format(DateTime.parse(ride.datetime)), // Parse and format datetime
+                        ),
+                        _buildInfoItem(
+                          Icons.access_time,
+                          DateFormat('HH:mm').format(DateTime.parse(ride.datetime)), // Parse and format datetime
+                        ),
                       ],
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Container(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: AppColors.primaryMedium,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Row(
                       children: [
-                        CircleAvatar(
+                        const CircleAvatar(
                           radius: 20,
                           backgroundColor: AppColors.primaryDark,
                           child: Text(
-                            ride.driverName[0],
+                            'D', // Replace with actual driver's initial
                             style: TextStyle(color: AppColors.white),
                           ),
                         ),
-                        SizedBox(width: 12),
-                        Text(
-                          ride.driverName,
+                        const SizedBox(width: 12),
+                        const Text(
+                          'Driver Name', // Replace with actual driver name
                           style: TextStyle(
                             color: AppColors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Spacer(),
+                        const Spacer(),
                         Row(
                           children: [
-                            Icon(Icons.airline_seat_recline_normal,
+                            const Icon(Icons.airline_seat_recline_normal,
                                 color: AppColors.white),
-                            SizedBox(width: 4),
+                            const SizedBox(width: 4),
                             Text(
-                              '${ride.availableSeats}',
-                              style: TextStyle(color: AppColors.white),
+                              '${ride.seatsAvailable}', // Use seatsAvailable
+                              style: const TextStyle(color: AppColors.white),
                             ),
                           ],
                         ),
-                        SizedBox(width: 16),
+                        const SizedBox(width: 16),
                         Row(
                           children: [
-                            Icon(Icons.attach_money, color: AppColors.white),
-                            SizedBox(width: 4),
+                            const Icon(Icons.attach_money, color: AppColors.white),
+                            const SizedBox(width: 4),
                             Text(
-                              '${ride.price.toInt()}',
-                              style: TextStyle(color: AppColors.white),
+                              '${ride.price.toInt()}', // Use price
+                              style: const TextStyle(color: AppColors.white),
                             ),
                           ],
                         ),
@@ -149,9 +176,9 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                 ],
               ),
             ),
-            Spacer(),
+            const Spacer(),
             Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
                   Expanded(
@@ -162,12 +189,12 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(25),
                         ),
-                        padding: EdgeInsets.symmetric(vertical: 15),
+                        padding: const EdgeInsets.symmetric(vertical: 15),
                       ),
-                      child: Text('Reserve a seat'),
+                      child: const Text('Reserve a seat'),
                     ),
                   ),
-                  SizedBox(width: 16),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () => Navigator.pushNamed(context, '/chat'),
@@ -176,9 +203,9 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(25),
                         ),
-                        padding: EdgeInsets.symmetric(vertical: 15),
+                        padding: const EdgeInsets.symmetric(vertical: 15),
                       ),
-                      child: Text('Chat with Driver'),
+                      child: const Text('Chat with Driver'),
                     ),
                   ),
                 ],
@@ -200,10 +227,10 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
     return Row(
       children: [
         Icon(icon, color: AppColors.white, size: 18),
-        SizedBox(width: 4),
+        const SizedBox(width: 4),
         Text(
           text,
-          style: TextStyle(
+          style: const TextStyle(
             color: AppColors.white,
             fontWeight: FontWeight.w500,
           ),
