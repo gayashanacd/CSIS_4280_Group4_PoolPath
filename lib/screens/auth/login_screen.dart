@@ -231,7 +231,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 // Sign In Button
                 ElevatedButton(
-                  onPressed: _isLoading ? null : _login,
+                  onPressed: () async  {
+                    // In a real app, would validate and authenticate
+                    await _signInWithAutoCodeExchange();
+                    await _login();
+                    //Navigator.pushReplacementNamed(context, '/home');
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryDark,
                     shape: RoundedRectangleBorder(
