@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart'; // Import Provider
 import '../constants/theme.dart';
 import '../data/dummy_data.dart';
 import '../widgets/bottom_nav_bar.dart';
 import '../widgets/search_bar.dart';
 import '../widgets/ride_card.dart';
+import '../providers/user_provider.dart'; // Import UserProvider
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -17,7 +19,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Access the user data using Provider
+    final userProvider = Provider.of<UserProvider>(context);
+    final user = userProvider.user; // Get the user object
+
     return Scaffold(
+      appBar: AppBar(
+        title: Text(user != null ? 'Welcome, ${user.fullName}' : 'Welcome'), // Display user's name
+      ),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
