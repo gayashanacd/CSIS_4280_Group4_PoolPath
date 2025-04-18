@@ -50,7 +50,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                   width: double.infinity,
                   child: ride.imageName.isNotEmpty
                       ? Image.network(
-                    'https://cdn.pixabay.com/photo/2015/04/23/22/00/new-year-background-736885_1280.jpg',
+                    'https://cdn.pixabay.com/photo/2012/08/28/23/05/parliament-55231_1280.jpg',
                     fit: BoxFit.cover,
                     errorBuilder: (context, object, stackTrace) {
                       return Image.asset(
