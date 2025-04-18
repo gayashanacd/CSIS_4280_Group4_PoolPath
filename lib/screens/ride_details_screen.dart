@@ -1,8 +1,12 @@
 // lib/screens/ride_details_screen.dart
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import '../constants/theme.dart';
-import '../models/ride.dart'; // Use Ride, not RideModel
+import '../models/ride.dart';
+import '../util/util.dart';
 import '../widgets/bottom_nav_bar.dart';
 
 class RideDetailsScreen extends StatefulWidget {
@@ -14,10 +18,25 @@ class RideDetailsScreen extends StatefulWidget {
 
 class _RideDetailsScreenState extends State<RideDetailsScreen> {
   int _currentIndex = 0;
+  String fullName = '';
+  bool _isLoading = true;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final ride = ModalRoute.of(context)!.settings.arguments as Ride; // Use Ride
+    final Ride? ride = ModalRoute.of(context)?.settings.arguments as Ride?;
+
+    if (ride == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Error')),
+        body: const Center(child: Text('Ride details not found.')),
+      );
+    }
 
     return Scaffold(
       body: SafeArea(
@@ -29,13 +48,13 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                 Container(
                   height: 250,
                   width: double.infinity,
-                  child: ride.imageName.isNotEmpty // Check if imageName is not empty
+                  child: ride.imageName.isNotEmpty
                       ? Image.network(
-                    'https://cdn.pixabay.com/photo/2015/04/23/22/00/new-year-background-736885_1280.jpg', // Construct the full URL
+                    'https://cdn.pixabay.com/photo/2015/04/23/22/00/new-year-background-736885_1280.jpg',
                     fit: BoxFit.cover,
                     errorBuilder: (context, object, stackTrace) {
                       return Image.asset(
-                        'assets/images/placeholder.jpg', // Placeholder in case of error
+                        'assets/images/placeholder.jpg',
                         fit: BoxFit.cover,
                       );
                     },
@@ -53,7 +72,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                     },
                   )
                       : Image.asset(
-                    'assets/images/placeholder.jpg', // Placeholder if no imageName
+                    'assets/images/placeholder.jpg',
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -92,12 +111,12 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${ride.origin}-${ride.destination}', // Use origin and destination
+                    '${ride.origin}-${ride.destination}',
                     style: Theme.of(context).textTheme.displayMedium,
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'No description provided.', // Replace with actual description if available
+                    'No description provided.', // Replace with ride.description if available
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   const SizedBox(height: 24),
@@ -112,11 +131,11 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                       children: [
                         _buildInfoItem(
                           Icons.calendar_today,
-                          DateFormat('MMM dd, yyyy').format(DateTime.parse(ride.datetime)), // Parse and format datetime
+                          DateFormat('MMM dd, yyyy').format(DateTime.parse(ride.datetime)),
                         ),
                         _buildInfoItem(
                           Icons.access_time,
-                          DateFormat('HH:mm').format(DateTime.parse(ride.datetime)), // Parse and format datetime
+                          DateFormat('HH:mm').format(DateTime.parse(ride.datetime)),
                         ),
                       ],
                     ),
@@ -134,27 +153,33 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                           radius: 20,
                           backgroundColor: AppColors.primaryDark,
                           child: Text(
-                            'D', // Replace with actual driver's initial
+                            'D', // You might want to get the actual initial from the driver's name
                             style: TextStyle(color: AppColors.white),
                           ),
                         ),
                         const SizedBox(width: 12),
-                        const Text(
-                          'Driver Name', // Replace with actual driver name
-                          style: TextStyle(
-                            color: AppColors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                        Expanded(
+                          child: _isLoading
+                              ? const Text(
+                            'Loading driver name...',
+                            style: TextStyle(color: AppColors.white),
+                          )
+                              : Text(
+                            fullName,
+                            style: const TextStyle(
+                              color: AppColors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                        const Spacer(),
+                        const SizedBox(width: 16),
                         Row(
                           children: [
-                            const Icon(Icons.airline_seat_recline_normal,
-                                color: AppColors.white),
+                            const Icon(Icons.airline_seat_recline_normal, color: AppColors.white),
                             const SizedBox(width: 4),
                             Text(
-                              '${ride.seatsAvailable}', // Use seatsAvailable
+                              '${ride.seatsAvailable}',
                               style: const TextStyle(color: AppColors.white),
                             ),
                           ],
@@ -165,7 +190,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                             const Icon(Icons.attach_money, color: AppColors.white),
                             const SizedBox(width: 4),
                             Text(
-                              '${ride.price.toInt()}', // Use price
+                              '${ride.price.toInt()}',
                               style: const TextStyle(color: AppColors.white),
                             ),
                           ],
@@ -173,6 +198,14 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                       ],
                     ),
                   ),
+                  if (_errorMessage != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        _errorMessage!,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
                 ],
               ),
             ),

@@ -20,6 +20,9 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   List<Ride> _rides = []; // Store rides from backend
+  String fullName = '';
+  bool _isLoading = true;
+  String? _errorMessage;
 
   @override
   void initState() {

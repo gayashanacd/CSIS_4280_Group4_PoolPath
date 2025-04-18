@@ -1,3 +1,9 @@
+import 'dart:convert';
+
+import 'package:http/http.dart' as http;
+
+import '../util/util.dart';
+
 class Ride {
   final int id;
   final String origin;
@@ -30,6 +36,7 @@ class Ride {
     required this.imageName,
     required this.full,
   });
+
 
   factory Ride.fromJson(Map<String, dynamic> json) {
     return Ride(
