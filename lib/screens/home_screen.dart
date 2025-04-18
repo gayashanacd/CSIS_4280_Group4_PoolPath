@@ -4,6 +4,7 @@ import 'dart:convert'; // For JSON decoding
 import 'package:http/http.dart' as http; // For HTTP requests
 import '../constants/theme.dart';
 import '../models/ride.dart';
+import '../providers/token_provider.dart';
 import '../widgets/bottom_nav_bar.dart';
 import '../widgets/search_bar.dart';
 import '../widgets/ride_card.dart';
@@ -31,7 +32,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _fetchRides() async {
-    final response = await http.get(Uri.parse('http://$local_Ip:8081/api/rides'));
+    final _accessTokenTemp = Provider.of<TokenProvider>(context, listen: false).accessToken;
+    final response = await http.get(Uri.parse('http://$local_Ip:8081/api/rides'),
+        headers: <String, String>{'Authorization': 'Bearer $_accessTokenTemp'});
 
     if (response.statusCode == 200) {
       // Decode the JSON response

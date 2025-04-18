@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/theme.dart';
+import '../providers/token_provider.dart';
 import '../widgets/bottom_nav_bar.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -63,8 +64,11 @@ class _PostRideScreenState extends State<PostRideScreen> {
     }
 
     try {
+      final _accessTokenTemp = Provider.of<TokenProvider>(context, listen: false).accessToken;
+
       final uri = Uri.parse("http://$local_Ip:8081/api/rides/image");
       var request = http.MultipartRequest('POST', uri);
+      request.headers['Authorization'] = 'Bearer $_accessTokenTemp';
       request.fields['origin'] = originController.text;
       request.fields['destination'] = destinationController.text;
       request.fields['date'] = dateController.text; // Use the controller's text
