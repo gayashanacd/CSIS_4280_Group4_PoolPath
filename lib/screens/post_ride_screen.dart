@@ -80,13 +80,13 @@ class _PostRideScreenState extends State<PostRideScreen> {
       request.fields['originAddress'] = originAddressController.text;
       request.fields['destinationAddress'] = destinationAddressController.text;
 
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          'image',
-          _image!.path,
-          contentType: MediaType('image', 'jpeg'),
-        ),
-      );
+      // request.files.add(
+      //   await http.MultipartFile.fromPath(
+      //     'image',
+      //     _image!.path,
+      //     contentType: MediaType('image', 'jpeg'),
+      //   ),
+      // );
 
       print('Sending request with:');
       print('Origin: ${request.fields['origin']}');

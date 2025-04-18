@@ -45,7 +45,7 @@ class Ride {
       userId: json['userId'] as int,
       createdDateTime: json['createdDateTime'] as String,
       price: (json['price'] as num).toDouble(), // Safe double conversion
-      imageName: json['imageName'] as String,
+      imageName: "https://cdn.pixabay.com/photo/2015/04/23/22/00/new-year-background-736885_1280.jpg",
       full: json['full'] as bool,
     );
   }

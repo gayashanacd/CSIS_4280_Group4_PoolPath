@@ -22,7 +22,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  //String local_Ip="192.168.1.166";
 
   bool _authenticated = false;
   String _error = "";

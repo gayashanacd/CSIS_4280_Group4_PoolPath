@@ -31,7 +31,7 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                   width: double.infinity,
                   child: ride.imageName.isNotEmpty // Check if imageName is not empty
                       ? Image.network(
-                    'YOUR_IMAGE_BASE_URL/${ride.imageName}', // Construct the full URL
+                    'https://cdn.pixabay.com/photo/2015/04/23/22/00/new-year-background-736885_1280.jpg', // Construct the full URL
                     fit: BoxFit.cover,
                     errorBuilder: (context, object, stackTrace) {
                       return Image.asset(

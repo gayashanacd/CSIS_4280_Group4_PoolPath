@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:group04_app/screens/user_rides.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -208,6 +209,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 title: Text('Your Rides'),
                 trailing: Icon(Icons.arrow_forward_ios),
                 onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => UserRides()));
                   // Handle your rides
                 },
               ),
@@ -216,6 +218,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 title: Text('Your Requests'),
                 trailing: Icon(Icons.arrow_forward_ios),
                 onTap: () {
+
                   // Handle your requests
                 },
               ),

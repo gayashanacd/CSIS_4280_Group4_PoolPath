@@ -29,9 +29,10 @@ class RideCard extends StatelessWidget {
                 topLeft: Radius.circular(15),
                 topRight: Radius.circular(15),
               ),
-              child: ride.imageName.isNotEmpty // Check if imageName is not empty
+              child:
+              ride.imageName.isNotEmpty // Check if imageName is not empty
                   ? Image.network( // Use Image.network
-                'YOUR_IMAGE_BASE_URL/${ride.imageName}', // Construct the full URL
+                'https://cdn.pixabay.com/photo/2015/04/23/22/00/new-year-background-736885_1280.jpg', // Construct the full URL
                 height: 100,
                 width: double.infinity,
                 fit: BoxFit.cover,
