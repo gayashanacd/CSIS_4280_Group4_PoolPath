@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:group04_app/providers/token_provider.dart';
 import 'package:group04_app/providers/user_provider.dart';
+import 'package:group04_app/screens/ride_request_screen.dart';
 import 'package:provider/provider.dart';
 import 'constants/theme.dart';
 import 'screens/home_screen.dart';
@@ -47,6 +48,7 @@ class PoolPathApp extends StatelessWidget {
         '/post_ride': (context) => const PostRideScreen(),
         '/filter_rides': (context) => const FilterRidesScreen(),
         '/identity_verification': (context) => const IdentityVerificationScreen(),
+        '/ride-request': (context) => const RideRequestScreen(),
       },
     );
   }
