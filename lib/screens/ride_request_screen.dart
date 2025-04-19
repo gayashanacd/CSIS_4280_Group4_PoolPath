@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../constants/theme.dart';
 import '../models/ride.dart';
 import '../providers/token_provider.dart';
+import '../providers/user_provider.dart';
 import '../util/util.dart';
 import '../widgets/bottom_nav_bar.dart';
 
@@ -23,7 +24,7 @@ class _RideRequestScreenState extends State<RideRequestScreen> {
   bool _requestSuccess = false;
   int _currentIndex = 0;
 
-  Future<void> _requestRide(Ride ride, String token) async {
+  Future<void> _requestRide(BuildContext context, Ride ride, String token) async {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -31,14 +32,33 @@ class _RideRequestScreenState extends State<RideRequestScreen> {
     });
 
     try {
+      // Get user data from UserProvider - using listen: false to avoid rebuild during API call
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      final user = userProvider.user;
+
+      if (user == null) {
+        setState(() {
+          _errorMessage = 'User information not available';
+          _isLoading = false;
+        });
+        return;
+      }
+
       final response = await http.post(
-        Uri.parse('http://$local_Ip:8081/api/rides/${ride.id}/requests'),
+        Uri.parse('http://$local_Ip:8081/api/requests'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token'
         },
-        // You can add a body if needed for the request
-        // body: json.encode({'seats': 1}),
+        body: json.encode({
+          'rideId': ride.id,
+          'rideUserId': ride.userId,
+          'status': 'PENDING',
+          'requesterId': user.id,
+          'requesterName': user.fullName,
+          'message': 'Booking this ride',
+          'seatsRequested': 1
+        }),
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -63,17 +83,21 @@ class _RideRequestScreenState extends State<RideRequestScreen> {
   @override
   void initState() {
     super.initState();
-    // Auto-request the ride when the page loads
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final Ride? ride = ModalRoute.of(context)?.settings.arguments as Ride?;
-      final accessToken = Provider.of<TokenProvider>(context, listen: false).accessToken;
 
-      if (ride != null && accessToken != null) {
-        _requestRide(ride, accessToken);
-      } else {
-        setState(() {
-          _errorMessage = 'Missing ride information or access token';
-        });
+    // Delay the API call to ensure the widget is fully built
+    // This helps avoid Provider-related errors
+    Future.delayed(Duration.zero, () {
+      if (mounted) {
+        final Ride? ride = ModalRoute.of(context)?.settings.arguments as Ride?;
+        final accessToken = Provider.of<TokenProvider>(context, listen: false).accessToken;
+
+        if (ride != null && accessToken != null) {
+          _requestRide(context, ride, accessToken);
+        } else {
+          setState(() {
+            _errorMessage = 'Missing ride information or access token';
+          });
+        }
       }
     });
   }
@@ -276,7 +300,7 @@ class _RideRequestScreenState extends State<RideRequestScreen> {
                   onPressed: () {
                     final accessToken = Provider.of<TokenProvider>(context, listen: false).accessToken;
                     if (accessToken != null) {
-                      _requestRide(ride, accessToken);
+                      _requestRide(context, ride, accessToken);
                     } else {
                       setState(() {
                         _errorMessage = 'Missing access token';
