@@ -4,8 +4,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../constants/theme.dart';
 import '../models/ride.dart';
+import '../providers/token_provider.dart';
 import '../util/util.dart';
 import '../widgets/bottom_nav_bar.dart';
 
@@ -25,6 +27,53 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
   @override
   void initState() {
     super.initState();
+    // We will fetch the driver data once we have access to the Ride object
+    // This happens after the widget is built the first time
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final Ride? ride = ModalRoute.of(context)?.settings.arguments as Ride?;
+      final _accessTokenTemp = Provider.of<TokenProvider>(context, listen: false).accessToken;
+      if (ride != null) {
+        _fetchDriverName(ride.userId.toString(), _accessTokenTemp!);
+      }
+    });
+  }
+
+  // Method to fetch driver's name from API
+  Future<void> _fetchDriverName(String userId, String token) async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final response = await http.get(
+        Uri.parse('http://$local_Ip:8081/users/$userId'),
+        headers: {
+          'Content-Type': 'application/json',
+          // Add any required headers, like authorization if needed
+          'Authorization': 'Bearer $token'
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        setState(() {
+          // Update this according to your API response structure
+          fullName = '${data['fullName']}';
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _errorMessage = 'Failed to load driver info: ${response.statusCode}';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error: ${e.toString()}';
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -149,11 +198,11 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                     ),
                     child: Row(
                       children: [
-                        const CircleAvatar(
+                        CircleAvatar(
                           radius: 20,
                           backgroundColor: AppColors.primaryDark,
                           child: Text(
-                            'D', // You might want to get the actual initial from the driver's name
+                            _isLoading ? 'D' : fullName.isNotEmpty ? fullName[0] : 'D',
                             style: TextStyle(color: AppColors.white),
                           ),
                         ),
@@ -216,7 +265,14 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
                 children: [
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        // Navigate to the ride request screen with the ride object
+                        Navigator.pushNamed(
+                            context,
+                            '/ride-request',
+                            arguments: ride
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primaryDark,
                         shape: RoundedRectangleBorder(
