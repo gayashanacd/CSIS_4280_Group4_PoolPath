@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:group04_app/screens/user_rides.dart';
+import 'package:group04_app/screens/user_requests_screen.dart'; // Import the new screen
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -8,7 +9,7 @@ import '../models/user.dart';
 import '../providers/user_provider.dart';
 import '../widgets/bottom_nav_bar.dart';
 import '../util/util.dart';
-import 'post_ride_screen.dart'; // Import PostRideScreen
+import 'post_ride_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -21,7 +22,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   int _currentIndex = 3;
 
   Future<void> _updateUser(User user, {bool isPasswordChange = false}) async {
-    final url = Uri.parse('http://$local_Ip:8081/api/users/${user.id}'); // Replace with your API URL
+    final url = Uri.parse('http://$local_Ip:8081/api/users/${user.id}');
     try {
       final body = json.encode({
         'username': user.username,
@@ -31,8 +32,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
       print('Request URL: $url');
       print('Request Body: $body');
-      print('Is Password Change: $isPasswordChange'); // Debug for password
-
+      print('Is Password Change: $isPasswordChange');
 
       final response = await http.put(
         url,
@@ -71,7 +71,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     Provider.of<UserProvider>(context, listen: false).clearUser();
 
     // Navigate back to the login screen
-    Navigator.pushReplacementNamed(context, '/login'); // Replace '/login' with your actual login route
+    Navigator.pushReplacementNamed(context, '/login');
   }
 
   @override
@@ -89,7 +89,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start, // Align to the start
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Consumer<UserProvider>(
                 builder: (context, userProvider, child) {
@@ -188,52 +188,63 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildRidesAndRequestsSection() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Card(
-        elevation: 2,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Rides & Requests',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              ListTile(
-                leading: Icon(Icons.directions_car),
-                title: Text('Your Rides'),
-                trailing: Icon(Icons.arrow_forward_ios),
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => UserRides()));
-                  // Handle your rides
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.mail),
-                title: Text('Your Requests'),
-                trailing: Icon(Icons.arrow_forward_ios),
-                onTap: () {
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
+        final user = userProvider.user;
 
-                  // Handle your requests
-                },
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Card(
+            elevation: 2,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Rides & Requests',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.directions_car),
+                    title: Text('Your Rides'),
+                    trailing: Icon(Icons.arrow_forward_ios),
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => UserRides())
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.mail),
+                    title: Text('Your Requests'),
+                    trailing: Icon(Icons.arrow_forward_ios),
+                    onTap: () {
+                      // Navigate to the new UserRequests screen
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => UserRequests())
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.add_circle_outline),
+                    title: Text('Host a Ride'),
+                    trailing: Icon(Icons.arrow_forward_ios),
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => PostRideScreen()));
+                    },
+                  ),
+                ],
               ),
-              ListTile(
-                leading: Icon(Icons.add_circle_outline),
-                title: Text('Host a Ride'),
-                trailing: Icon(Icons.arrow_forward_ios),
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => PostRideScreen())); // Navigate to PostRideScreen
-                },
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -353,7 +364,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             TextButton(
               onPressed: () {
-
                 _updateUser(user.copyWith(password: newPassword), isPasswordChange: true);
                 Navigator.pop(context);
               },
